@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>THE WALK – KML → GeoJSON Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+    header { padding: 20px; border-bottom: 1px solid #243044; }
+    h1 { margin: 0; font-size: 20px; letter-spacing: 0.08em; }
+    main { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .panel { background: #0b1220; border: 1px solid #1f2a44; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    label { font-size: 12px; color: #93a4bd; display: block; margin-bottom: 6px; }
+    input[type="file"], input[type="number"], input[type="text"] { width: 100%; padding: 10px; background: #0f1a30; border: 1px solid #243044; color: #e2e8f0; border-radius: 8px; }
+    button { background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; border: 0; padding: 12px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+    button.secondary { background: #1a2540; border: 1px solid #2b3a5e; }
+    .actions { display: flex; gap: 8px; align-items: center; }
+    textarea { width: 100%; min-height: 360px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; background: #0a1324; color: #dbe8ff; border: 1px solid #243044; border-radius: 8px; padding: 12px; }
+    .hint { font-size: 12px; color: #9fb2d1; }
+    .success { color: #34d399; }
+    .error { color: #f87171; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>THE WALK — KML → GeoJSON Converter</h1>
+  </header>
+  <main>
+    <div class="panel">
+      <p class="hint">Drop a KML/KMZ from Google Earth/My Maps. We’ll convert to GeoJSON, set defaults, and you can edit properties before saving to <code>config/zones.geojson</code>.</p>
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <label for="kmlfile">KML/KMZ file</label>
+          <input type="file" id="kmlfile" accept=".kml,.kmz" />
+        </div>
+        <div>
+          <label for="defaultRadius">Default radius (meters)</label>
+          <input type="number" id="defaultRadius" min="5" step="1" value="75" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <label for="defaultFade">Default fade distance (meters)</label>
+          <input type="number" id="defaultFade" min="0" step="1" value="25" />
+        </div>
+        <div>
+          <label for="defaultMaxVol">Default max volume (0.0–1.0)</label>
+          <input type="number" id="defaultMaxVol" min="0" max="1" step="0.05" value="0.8" />
+        </div>
+      </div>
+      <div class="actions" style="margin-top:16px;">
+        <button id="convertBtn">Convert</button>
+        <button id="saveBtn" class="secondary" disabled>Save to config/zones.geojson</button>
+        <span id="status" class="hint"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <label for="geojsonOut">GeoJSON (editable)</label>
+      <textarea id="geojsonOut" spellcheck="false" placeholder="Converted GeoJSON will appear here..."></textarea>
+      <p class="hint">Tips: Ensure each Feature is a Point with properties: <code>id</code>, <code>radius_m</code>, <code>fadeDistance</code> (optional), <code>maxVolume</code> (optional), and <code>audioLayers</code> (array of { id, file, loop, volume }).</p>
+    </div>
+  </main>
+
+  <!-- togeojson UMD build -->
+  <script src="https://unpkg.com/@tmcw/togeojson@4.8.0/dist/togeojson.umd.js"></script>
+  <script>
+    const fileInput = document.getElementById('kmlfile');
+    const convertBtn = document.getElementById('convertBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const out = document.getElementById('geojsonOut');
+    const statusEl = document.getElementById('status');
+
+    function setStatus(msg, cls = '') {
+      statusEl.textContent = msg;
+      statusEl.className = 'hint ' + cls;
+    }
+
+    async function readFileAsArrayBuffer(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function convertKML() {
+      const file = fileInput.files?.[0];
+      if (!file) { setStatus('Please choose a KML/KMZ file.', 'error'); return; }
+      try {
+        setStatus('Converting…');
+        const ab = await readFileAsArrayBuffer(file);
+
+        // Parse KML/KMZ (KMZ is a zip; togeojson supports only KML directly).
+        // If KMZ is provided, advise using Google Earth to export KML.
+        let geojson;
+        try {
+          const text = new TextDecoder('utf-8').decode(ab);
+          const dom = new DOMParser().parseFromString(text, 'text/xml');
+          geojson = toGeoJSON.kml(dom);
+        } catch (e) {
+          setStatus('If using KMZ, export as KML first (KMZ not supported by in-browser converter).', 'error');
+          throw e;
+        }
+
+        // Apply defaults and ensure properties exist
+        const defRadius = parseFloat(document.getElementById('defaultRadius').value) || 75;
+        const defFade = parseFloat(document.getElementById('defaultFade').value) || 25;
+        const defMaxVol = Math.max(0, Math.min(1, parseFloat(document.getElementById('defaultMaxVol').value) || 0.8));
+
+        for (const f of geojson.features) {
+          f.properties = f.properties || {};
+          if (f.geometry && f.geometry.type === 'Point') {
+            if (typeof f.properties.radius_m !== 'number') f.properties.radius_m = defRadius;
+            if (typeof f.properties.fadeDistance !== 'number') f.properties.fadeDistance = defFade;
+            if (typeof f.properties.maxVolume !== 'number') f.properties.maxVolume = defMaxVol;
+            if (!Array.isArray(f.properties.audioLayers)) f.properties.audioLayers = [];
+            if (!f.properties.id) {
+              const base = (f.properties.name || 'zone').toString().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_\-]/g,'');
+              f.properties.id = base + '_' + Math.random().toString(36).slice(2,6);
+            }
+          }
+        }
+
+        out.value = JSON.stringify(geojson, null, 2);
+        saveBtn.disabled = false;
+        setStatus('Converted. Review/edit the GeoJSON below, then Save.', 'success');
+      } catch (err) {
+        console.error(err);
+        setStatus('Conversion failed. See console for details.', 'error');
+      }
+    }
+
+    async function saveGeoJSON() {
+      try {
+        const body = JSON.parse(out.value);
+        const res = await fetch('/api/zones/geojson', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        setStatus('Saved to config/zones.geojson. You can now reload the main app.', 'success');
+      } catch (err) {
+        console.error(err);
+        setStatus('Save failed. Ensure valid JSON and try again.', 'error');
+      }
+    }
+
+    convertBtn.addEventListener('click', convertKML);
+    saveBtn.addEventListener('click', saveGeoJSON);
+  </script>
+</body>
+</html>

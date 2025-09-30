@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"name": "oneshots",
+"features": [
+{ "type": "Feature", "properties": { "Name": "oneshot1" }, "geometry": { "type": "Point", "coordinates": [ -118.4627964, 33.989112, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot2" }, "geometry": { "type": "Point", "coordinates": [ -118.4637515, 33.9897737, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot3" }, "geometry": { "type": "Point", "coordinates": [ -118.4655877, 33.9904448, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot4" }, "geometry": { "type": "Point", "coordinates": [ -118.4681901, 33.991068, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot5" }, "geometry": { "type": "Point", "coordinates": [ -118.4705502, 33.9916976, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot6" }, "geometry": { "type": "Point", "coordinates": [ -118.4695822, 33.9915864, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot7" }, "geometry": { "type": "Point", "coordinates": [ -118.4660381, 33.9906851, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "oneshot 8" }, "geometry": { "type": "Point", "coordinates": [ -118.4649178, 33.9904132, 0.0 ] } }
+]
+}

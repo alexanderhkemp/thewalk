@@ -1,0 +1,12 @@
+{
+"type": "FeatureCollection",
+"name": "THE WALK",
+"features": [
+{ "type": "Feature", "properties": { "Name": "start" }, "geometry": { "type": "Point", "coordinates": [ -118.4624973, 33.9889161 ] } },
+{ "type": "Feature", "properties": { "Name": "music 1" }, "geometry": { "type": "Point", "coordinates": [ -118.4628989, 33.9891545 ] } },
+{ "type": "Feature", "properties": { "Name": "music 2" }, "geometry": { "type": "Point", "coordinates": [ -118.4643471, 33.9901226 ] } },
+{ "type": "Feature", "properties": { "Name": "music 3" }, "geometry": { "type": "Point", "coordinates": [ -118.4668439, 33.9908258 ] } },
+{ "type": "Feature", "properties": { "Name": "music 4" }, "geometry": { "type": "Point", "coordinates": [ -118.4702927, 33.9917539 ] } },
+{ "type": "Feature", "properties": { "Name": "home" }, "geometry": { "type": "Point", "coordinates": [ -118.4634005, 33.9876053 ] } }
+]
+}

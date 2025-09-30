@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE WALK - Location-Based Audio Art</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+    <div id="debug-overlay" class="debug-overlay hidden">
+        <div class="debug-header">
+            <span>Debug Overlay</span>
+            <label class="debug-toggle">
+                <input type="checkbox" id="debug-toggle"> Show
+            </label>
+        </div>
+        <div class="debug-content">
+            <div class="debug-section">
+                <h4>Zones</h4>
+                <div id="debug-zones">No data yet</div>
+            </div>
+            <div class="debug-section">
+                <h4>Active Layers</h4>
+                <div id="debug-layers">No layers</div>
+            </div>
+        </div>
+    </div>
+    <div id="app">
+        <header class="header">
+            <h1 class="title">THE WALK</h1>
+            <p class="subtitle">An Audio Art Experience</p>
+        </header>
+
+        <main class="main">
+            <div class="status-panel">
+                <div class="location-info">
+                    <h3>Current Location</h3>
+                    <div id="coordinates">Waiting for location...</div>
+                    <div id="accuracy">Accuracy: Unknown</div>
+                </div>
+            </div>
+
+            <!-- Map container -->
+            <div id="map" aria-label="Map showing your location"></div>
+
+            <section class="controls">
+                <div class="button-group">
+                    <button id="start-walk" class="btn primary">Start The Walk</button>
+                    <button id="stop-walk" class="btn" disabled>Stop</button>
+                    <button id="test-audio" class="btn">Test Audio</button>
+                </div>
+                
+                <!-- GPS Simulator for testing -->
+                <div class="simulator-panel" id="simulator-panel" style="display: none;">
+                    <h4>🎯 GPS Simulator (Testing Mode)</h4>
+                    <div class="simulator-controls">
+                        <button id="sim-home" class="btn sim-btn">📍 Home</button>
+                        <button id="sim-start" class="btn sim-btn">🚶 Start</button>
+                        <button id="sim-music1-1" class="btn sim-btn">🎵 Music 1-1</button>
+                        <button id="sim-music2-1" class="btn sim-btn">🎵 Music 2-1</button>
+                        <button id="sim-music3-1" class="btn sim-btn">🎵 Music 3-1</button>
+                        <button id="sim-music4-1" class="btn sim-btn">🎵 Music 4-1</button>
+                        <button id="sim-music5-1" class="btn sim-btn">🎵 Music 5-1</button>
+                        <button id="sim-oneshot1" class="btn sim-btn">💥 OS 1</button>
+                        <button id="sim-oneshot2" class="btn sim-btn">💥 OS 2</button>
+                        <button id="sim-oneshot3" class="btn sim-btn">💥 OS 3</button>
+                        <button id="sim-oneshot4" class="btn sim-btn">💥 OS 4</button>
+                        <button id="sim-oneshot5" class="btn sim-btn">💥 OS 5</button>
+                        <button id="sim-oneshot6" class="btn sim-btn">💥 OS 6</button>
+                        <button id="sim-oneshot7" class="btn sim-btn">💥 OS 7</button>
+                        <button id="sim-oneshot8" class="btn sim-btn">💥 OS 8</button>
+                        <button id="sim-oneshot9" class="btn sim-btn">💥 OS 9</button>
+                        <button id="sim-real-gps" class="btn sim-btn">📡 Use Real GPS</button>
+                    </div>
+                    <div class="simulator-status">
+                        <span id="simulator-status">Click locations to simulate GPS</span>
+                    </div>
+                </div>
+                
+                <!-- Audio Debug Panel -->
+                <div class="audio-debug-panel" id="audio-debug-panel" style="display: none;">
+                    <h4>🔊 Audio Status</h4>
+                    <div id="audio-debug-info">No audio playing</div>
+                </div>
+                <div class="volume-group">
+                    <label for="master-volume">Master Volume: <span id="volume-display">70%</span></label>
+                    <input id="master-volume" type="range" min="0" max="100" value="70" />
+
+            <div class="map-container">
+                <div id="location-map">
+                    <p>Interactive location visualization will appear here</p>
+                </div>
+            </div>
+        </main>
+
+        <div class="audio-layers" id="audio-layers">
+            <!-- Audio elements will be dynamically created here -->
+        </div>
+    </div>
+
+    <script src="js/locationService.js"></script>
+    <script src="js/audioMixer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

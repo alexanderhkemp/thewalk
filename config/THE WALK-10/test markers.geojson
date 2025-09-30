@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "test markers",
+"features": [
+{ "type": "Feature", "properties": { "Name": "start" }, "geometry": { "type": "Point", "coordinates": [ -118.4624973, 33.9889161, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "home" }, "geometry": { "type": "Point", "coordinates": [ -118.4634005, 33.9876053, 0.0 ] } }
+]
+}

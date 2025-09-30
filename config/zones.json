@@ -1,0 +1,145 @@
+{
+  "project": {
+    "name": "THE WALK",
+    "description": "Location-based audio art experience",
+    "version": "1.0.0"
+  },
+  "neighborhood": {
+    "name": "Sample Neighborhood",
+    "center": {
+      "lat": 37.7749,
+      "lng": -122.4194
+    },
+    "bounds": {
+      "north": 37.7760,
+      "south": 37.7738,
+      "east": -122.4180,
+      "west": -122.4208
+    }
+  },
+  "audioZones": [
+    {
+      "id": "entrance_zone",
+      "name": "Neighborhood Entrance",
+      "description": "Welcome sounds as users enter the experience area",
+      "center": {
+        "lat": 37.7749,
+        "lng": -122.4194
+      },
+      "radius": 75,
+      "fadeDistance": 25,
+      "maxVolume": 0.8,
+      "audioLayers": [
+        {
+          "id": "welcome_ambient",
+          "file": "audio/welcome_ambient.mp3",
+          "loop": true,
+          "volume": 0.7
+        },
+        {
+          "id": "entrance_melody",
+          "file": "audio/entrance_melody.mp3",
+          "loop": true,
+          "volume": 0.5
+        }
+      ]
+    },
+    {
+      "id": "park_area",
+      "name": "Park Section",
+      "description": "Natural sounds and peaceful melodies",
+      "center": {
+        "lat": 37.7751,
+        "lng": -122.4196
+      },
+      "radius": 100,
+      "fadeDistance": 30,
+      "maxVolume": 0.9,
+      "audioLayers": [
+        {
+          "id": "nature_sounds",
+          "file": "audio/nature_sounds.mp3",
+          "loop": true,
+          "volume": 0.8
+        },
+        {
+          "id": "peaceful_harmony",
+          "file": "audio/peaceful_harmony.mp3",
+          "loop": true,
+          "volume": 0.6
+        }
+      ]
+    },
+    {
+      "id": "urban_corner",
+      "name": "Urban Corner",
+      "description": "City rhythms and electronic textures",
+      "center": {
+        "lat": 37.7747,
+        "lng": -122.4192
+      },
+      "radius": 80,
+      "fadeDistance": 20,
+      "maxVolume": 0.7,
+      "audioLayers": [
+        {
+          "id": "urban_rhythm",
+          "file": "audio/urban_rhythm.mp3",
+          "loop": true,
+          "volume": 0.8
+        },
+        {
+          "id": "electronic_texture",
+          "file": "audio/electronic_texture.mp3",
+          "loop": true,
+          "volume": 0.4
+        }
+      ]
+    },
+    {
+      "id": "intersection_hub",
+      "name": "Central Intersection",
+      "description": "Complex layered soundscape where paths meet",
+      "center": {
+        "lat": 37.7750,
+        "lng": -122.4195
+      },
+      "radius": 60,
+      "fadeDistance": 35,
+      "maxVolume": 1.0,
+      "audioLayers": [
+        {
+          "id": "intersection_base",
+          "file": "audio/intersection_base.mp3",
+          "loop": true,
+          "volume": 0.9
+        },
+        {
+          "id": "layered_voices",
+          "file": "audio/layered_voices.mp3",
+          "loop": true,
+          "volume": 0.6
+        },
+        {
+          "id": "harmonic_drones",
+          "file": "audio/harmonic_drones.mp3",
+          "loop": true,
+          "volume": 0.5
+        }
+      ]
+    }
+  ],
+  "globalSettings": {
+    "masterVolume": 0.7,
+    "locationAccuracy": "high",
+    "updateInterval": 1000,
+    "fadeTransitionTime": 2.0,
+    "minMovementThreshold": 2
+  },
+  "audioSettings": {
+    "sampleRate": 44100,
+    "bufferSize": 4096,
+    "maxSimultaneousLayers": 8,
+    "compressionEnabled": true
+  }
+}

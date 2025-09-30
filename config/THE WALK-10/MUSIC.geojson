@@ -1,0 +1,22 @@
+{
+"type": "FeatureCollection",
+"name": "MUSIC",
+"features": [
+{ "type": "Feature", "properties": { "Name": "music 5-3" }, "geometry": { "type": "Point", "coordinates": [ -118.4684382, 33.9912142, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 5-2" }, "geometry": { "type": "Point", "coordinates": [ -118.4680032, 33.9911088, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 5-1" }, "geometry": { "type": "Point", "coordinates": [ -118.4675182, 33.9909623, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 4-3" }, "geometry": { "type": "Point", "coordinates": [ -118.4693232, 33.9915238, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 4-2" }, "geometry": { "type": "Point", "coordinates": [ -118.4700525, 33.9917154, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 4-1" }, "geometry": { "type": "Point", "coordinates": [ -118.4702927, 33.9917539, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 3-3" }, "geometry": { "type": "Point", "coordinates": [ -118.466012, 33.9905934, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 3-2" }, "geometry": { "type": "Point", "coordinates": [ -118.4669168, 33.9908282, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 3-1" }, "geometry": { "type": "Point", "coordinates": [ -118.4664467, 33.9907066, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 2-4" }, "geometry": { "type": "Point", "coordinates": [ -118.4650772, 33.990363, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 2-3" }, "geometry": { "type": "Point", "coordinates": [ -118.4647161, 33.9902536, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 2-2" }, "geometry": { "type": "Point", "coordinates": [ -118.4644869, 33.9901724, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 2-1" }, "geometry": { "type": "Point", "coordinates": [ -118.4640777, 33.9899985, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 1-3" }, "geometry": { "type": "Point", "coordinates": [ -118.463369, 33.9896006, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 1-2" }, "geometry": { "type": "Point", "coordinates": [ -118.4631274, 33.9893704, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "music 1-1" }, "geometry": { "type": "Point", "coordinates": [ -118.4628989, 33.9891545, 0.0 ] } }
+]
+}
