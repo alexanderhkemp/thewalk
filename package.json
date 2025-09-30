@@ -6,8 +6,6 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "webpack --mode production",
-    "serve": "http-server dist",
     "tunnel:cloudflare": "cloudflared tunnel --url http://localhost:3000",
     "beta:cloudflare": "node server.js & sleep 2 && cloudflared tunnel --url http://localhost:3000"
   },
