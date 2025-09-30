@@ -519,7 +519,7 @@ class TheWalkApp {
             console.log('The Walk started with all audio preloaded');
         } catch (error) {
             console.error('Failed to start walk:', error);
-            alert('Failed to start The Walk. Please check your permissions and try again.');
+            alert('Failed to start The Walk.\n\nError: ' + (error.message || error) + '\n\nCheck the Audio Status panel for more details.');
         }
     }
 
