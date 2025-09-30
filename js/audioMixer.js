@@ -563,11 +563,41 @@ class AudioMixer {
         this.lastDebugMessage = `Playing oneshot: ${layerId}`;
         this.updateAudioDebugPanel();
 
+        // Apply ducking based on which oneshot is playing
+        if (layerId === 'oneshot8') {
+            // Special case: oneshot8 - drop music to 0, fade back in over last 30 seconds
+            this.duckMusicBus(0, 0.5); // Duck to 0% over 0.5 seconds
+            // Schedule fade back in to start 30 seconds before end (at 55.6 seconds)
+            setTimeout(() => {
+                this.duckMusicBus(1.0, 30); // Fade back to 100% over 30 seconds
+            }, 55600);
+        } else {
+            // Standard ducking: drop to 80%
+            this.duckMusicBus(0.8, 0.3);
+        }
+
         source.onended = () => {
             this.activeOneshots.delete(layerId);
             layer.isPlaying = false;
             console.log(`✓ Oneshot finished: ${layerId}`);
+            
+            // Restore music volume when oneshot ends (unless it's oneshot8, which handles its own fade-in)
+            if (layerId !== 'oneshot8' && this.activeOneshots.size === 0) {
+                this.duckMusicBus(1.0, 0.5); // Fade back to 100% over 0.5 seconds
+            }
         };
+    }
+
+    // Duck the music bus to a specific gain level
+    duckMusicBus(targetGain, duration) {
+        if (!this.musicBus) return;
+        
+        const currentTime = this.audioContext.currentTime;
+        this.musicBus.gain.cancelScheduledValues(currentTime);
+        this.musicBus.gain.setValueAtTime(this.musicBus.gain.value, currentTime);
+        this.musicBus.gain.linearRampToValueAtTime(targetGain, currentTime + duration);
+        
+        console.log(`🎚️ Ducking music bus: ${(this.musicBus.gain.value * 100).toFixed(0)}% → ${(targetGain * 100).toFixed(0)}% over ${duration}s`);
     }
 
     // Calculate distance between two points
