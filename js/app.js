@@ -3,6 +3,7 @@ class TheWalkApp {
         this.isWalking = false;
         this.isPaused = false;
         this.pendingLayers = [];
+        this.wakeLock = null; // Screen wake lock
         // Map state
         this.enableMap = false; // temporarily disable map to reduce memory/CPU while stabilizing GPS
         this.map = null;
@@ -519,6 +520,9 @@ class TheWalkApp {
                 console.warn('Proceeding without initial GPS fix:', e?.message || e);
             }
 
+            // Request wake lock to keep screen on
+            await this.requestWakeLock();
+
             // Update UI now that we're ready
             this.isWalking = true;
             this.isPaused = false;
@@ -539,6 +543,9 @@ class TheWalkApp {
     pauseWalk() {
         if (!this.isWalking || this.isPaused) return;
         
+        // Release wake lock when paused
+        this.releaseWakeLock();
+        
         // Stop location tracking
         locationService.stopTracking();
         
@@ -558,8 +565,11 @@ class TheWalkApp {
     }
 
     // Resume the walk
-    resumeWalk() {
+    async resumeWalk() {
         if (!this.isWalking || !this.isPaused) return;
+        
+        // Re-request wake lock when resuming
+        await this.requestWakeLock();
         
         // Restart location tracking
         locationService.startTracking();
@@ -573,6 +583,9 @@ class TheWalkApp {
 
     // Reset the walk (clears oneshot history)
     resetWalk() {
+        // Release wake lock
+        this.releaseWakeLock();
+        
         // Stop location tracking
         locationService.stopTracking();
 
@@ -599,6 +612,34 @@ class TheWalkApp {
         this.ui.audioLayers.innerHTML = '';
 
         console.log('The Walk reset (oneshot history cleared)');
+    }
+
+    // Request wake lock to keep screen on
+    async requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                this.wakeLock = await navigator.wakeLock.request('screen');
+                console.log('✅ Wake Lock active - screen will stay on');
+                
+                // Re-request wake lock if it's released (e.g., when tab becomes inactive)
+                this.wakeLock.addEventListener('release', () => {
+                    console.log('⚠️ Wake Lock released');
+                });
+            } else {
+                console.warn('⚠️ Wake Lock API not supported on this device');
+            }
+        } catch (err) {
+            console.error('❌ Failed to request wake lock:', err);
+        }
+    }
+
+    // Release wake lock
+    releaseWakeLock() {
+        if (this.wakeLock) {
+            this.wakeLock.release();
+            this.wakeLock = null;
+            console.log('🔓 Wake Lock released - screen can sleep');
+        }
     }
 
     // Removed demo audio loader; real assets are preloaded from configuration
