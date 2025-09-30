@@ -467,7 +467,11 @@ class TheWalkApp {
                 this.updateLoadingStatus();
             }
             // 1) Prompt for location permission immediately with a one-shot call
-            await locationService.requestPermission();
+            const permissionGranted = await locationService.requestPermission();
+            if (!permissionGranted) {
+                alert('Location permission is required to use The Walk. Please enable location access in your browser settings and try again.');
+                return;
+            }
             // Start persistent tracking right after permission so updates begin promptly
             locationService.startTracking();
 
