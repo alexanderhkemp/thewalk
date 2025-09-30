@@ -357,7 +357,8 @@ class TheWalkApp {
         console.log(`Remaining ${this.pendingLayers.length - loaded} files will load on-demand`);
         
         if (loaded === 0) {
-            throw new Error('No audio files could be loaded');
+            console.warn('No audio files were preloaded, but will load on-demand');
+            // Don't throw - allow the app to continue and load files on-demand
         }
     }
     
