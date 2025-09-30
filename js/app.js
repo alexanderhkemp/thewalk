@@ -197,7 +197,7 @@ class TheWalkApp {
     // Load configuration from server (supports JSON and GeoJSON)
     async loadConfiguration() {
         try {
-            const res = await fetch('/api/zones');
+            const res = await fetch('/config/zones.geojson');
             if (!res.ok) throw new Error('Failed to load configuration');
             const cfg = await res.json();
 
