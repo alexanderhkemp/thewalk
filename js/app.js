@@ -1,6 +1,7 @@
 class TheWalkApp {
     constructor() {
         this.isWalking = false;
+        this.isPaused = false;
         this.pendingLayers = [];
         // Map state
         this.enableMap = false; // temporarily disable map to reduce memory/CPU while stabilizing GPS
@@ -13,7 +14,8 @@ class TheWalkApp {
             accuracy: document.getElementById('accuracy'),
             activeLayers: document.getElementById('active-layers'),
             startButton: document.getElementById('start-walk'),
-            stopButton: document.getElementById('stop-walk'),
+            pauseButton: document.getElementById('pause-walk'),
+            resetButton: document.getElementById('reset-walk'),
             masterVolume: document.getElementById('master-volume'),
             volumeDisplay: document.getElementById('volume-display'),
             audioLayers: document.getElementById('audio-layers'),
@@ -47,9 +49,16 @@ class TheWalkApp {
 
     // Initialize event listeners
     initializeEventListeners() {
-        // Start/Stop buttons
+        // Start/Pause/Reset buttons
         this.ui.startButton.addEventListener('click', () => this.startWalk());
-        this.ui.stopButton.addEventListener('click', () => this.stopWalk());
+        this.ui.pauseButton.addEventListener('click', () => {
+            if (this.isPaused) {
+                this.resumeWalk();
+            } else {
+                this.pauseWalk();
+            }
+        });
+        this.ui.resetButton.addEventListener('click', () => this.resetWalk());
         
         const testBtn = document.getElementById('test-audio');
         if (testBtn) {
@@ -512,8 +521,10 @@ class TheWalkApp {
 
             // Update UI now that we're ready
             this.isWalking = true;
+            this.isPaused = false;
             this.ui.startButton.disabled = true;
-            this.ui.stopButton.disabled = false;
+            this.ui.pauseButton.disabled = false;
+            this.ui.resetButton.disabled = false;
             this.ui.startButton.textContent = 'Walking...';
 
             // All audio is already preloaded - no need to load anything else!
@@ -524,15 +535,51 @@ class TheWalkApp {
         }
     }
 
-    // Stop the walk experience
-    stopWalk() {
+    // Pause the walk (preserves oneshot history)
+    pauseWalk() {
+        if (!this.isWalking || this.isPaused) return;
+        
+        // Stop location tracking
+        locationService.stopTracking();
+        
+        // Pause all audio (but don't reset)
+        audioMixer.audioLayers.forEach((layer, layerId) => {
+            if (layer.isPlaying && !layerId.startsWith('oneshot')) {
+                audioMixer.fadeLayer(layerId, 0, 0.5);
+                setTimeout(() => audioMixer.stopLayer(layerId), 600);
+            }
+        });
+        
+        this.isPaused = true;
+        this.ui.pauseButton.textContent = '▶️ RESUME';
+        this.ui.pauseButton.style.backgroundColor = '#4CAF50';
+        
+        console.log('The Walk paused (oneshot history preserved)');
+    }
+
+    // Resume the walk
+    resumeWalk() {
+        if (!this.isWalking || !this.isPaused) return;
+        
+        // Restart location tracking
+        locationService.startTracking();
+        
+        this.isPaused = false;
+        this.ui.pauseButton.textContent = '⏸️ PAUSE';
+        this.ui.pauseButton.style.backgroundColor = '#ff9800';
+        
+        console.log('The Walk resumed');
+    }
+
+    // Reset the walk (clears oneshot history)
+    resetWalk() {
         // Stop location tracking
         locationService.stopTracking();
 
         // CRITICAL: Stop test audio first to prevent conflicts
         audioMixer.stopLayer('test_audio_layer');
         
-        // Fully reset audio engine to avoid residual layers
+        // Fully reset audio engine including oneshot history
         if (audioMixer && typeof audioMixer.reset === 'function') {
             audioMixer.reset();
         } else {
@@ -541,13 +588,17 @@ class TheWalkApp {
 
         // Update UI
         this.isWalking = false;
+        this.isPaused = false;
         this.ui.startButton.disabled = false;
-        this.ui.stopButton.disabled = true;
-        this.ui.startButton.textContent = 'Start The Walk';
+        this.ui.pauseButton.disabled = true;
+        this.ui.resetButton.disabled = true;
+        this.ui.startButton.textContent = '▶️ Load and Start';
+        this.ui.pauseButton.textContent = '⏸️ PAUSE';
+        this.ui.pauseButton.style.backgroundColor = '#ff9800';
         this.ui.activeLayers.textContent = 'No active layers';
         this.ui.audioLayers.innerHTML = '';
 
-        console.log('The Walk stopped');
+        console.log('The Walk reset (oneshot history cleared)');
     }
 
     // Removed demo audio loader; real assets are preloaded from configuration
