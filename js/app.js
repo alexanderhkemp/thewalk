@@ -82,6 +82,37 @@ class TheWalkApp {
         }
         
 
+        // GPS Permission button
+        const requestGPSBtn = document.getElementById('request-gps');
+        const startWalkBtn = document.getElementById('start-walk');
+        if (requestGPSBtn) {
+            requestGPSBtn.addEventListener('click', async () => {
+                try {
+                    requestGPSBtn.disabled = true;
+                    requestGPSBtn.textContent = '📍 Requesting permission...';
+                    
+                    const permissionGranted = await locationService.requestPermission();
+                    
+                    if (permissionGranted) {
+                        requestGPSBtn.textContent = '✅ GPS Allowed';
+                        requestGPSBtn.style.backgroundColor = '#4CAF50';
+                        startWalkBtn.disabled = false;
+                        alert('GPS permission granted! Now click "Load and Start" to begin.');
+                    } else {
+                        requestGPSBtn.textContent = '❌ GPS Denied';
+                        requestGPSBtn.style.backgroundColor = '#f44336';
+                        requestGPSBtn.disabled = false;
+                        alert('GPS permission was denied. Please enable location access in your browser settings and try again.');
+                    }
+                } catch (error) {
+                    console.error('GPS permission error:', error);
+                    requestGPSBtn.textContent = '❌ Error';
+                    requestGPSBtn.disabled = false;
+                    alert('Error requesting GPS permission: ' + error.message);
+                }
+            });
+        }
+
         // Volume control
         this.ui.masterVolume.addEventListener('input', (e) => {
             const volume = e.target.value / 100;
@@ -466,13 +497,7 @@ class TheWalkApp {
                 this.audioPreloaded = true;
                 this.updateLoadingStatus();
             }
-            // 1) Prompt for location permission immediately with a one-shot call
-            const permissionGranted = await locationService.requestPermission();
-            if (!permissionGranted) {
-                alert('Location permission is required to use The Walk. Please enable location access in your browser settings and try again.');
-                return;
-            }
-            // Start persistent tracking right after permission so updates begin promptly
+            // Start persistent tracking (permission should already be granted)
             locationService.startTracking();
 
             // Audio already initialized during preload
