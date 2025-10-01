@@ -5,7 +5,7 @@ class TheWalkApp {
         this.pendingLayers = [];
         this.wakeLock = null; // Screen wake lock
         // Map state
-        this.enableMap = false; // temporarily disable map to reduce memory/CPU while stabilizing GPS
+        this.enableMap = true; // Enable map with custom image overlay
         this.map = null;
         this.mapMarker = null;
         this.accuracyCircle = null;
@@ -762,12 +762,21 @@ class TheWalkApp {
         if (!mapEl || typeof L === 'undefined') return;
 
         // Default view: Venice area as placeholder; will recenter on first GPS fix
-        this.map = L.map('map', { zoomControl: true }).setView([33.9892, -118.4629], 16);
+        this.map = L.map('map', { zoomControl: true }).setView([33.9908, -118.4675], 16);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+        // Custom map image overlay with geographic bounds
+        const imageBounds = [
+            [33.9939, -118.4750], // Top-left corner
+            [33.9878, -118.4600]  // Bottom-right corner
+        ];
+        
+        L.imageOverlay('assets/images/map1.png', imageBounds, {
+            opacity: 1.0,
+            interactive: false
         }).addTo(this.map);
+        
+        // Fit map to show the entire custom map area
+        this.map.fitBounds(imageBounds);
     }
 
     // Update map marker and accuracy circle
