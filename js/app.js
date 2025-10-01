@@ -762,13 +762,15 @@ class TheWalkApp {
         if (!mapEl || typeof L === 'undefined') return;
 
         // Default view: Venice area
-        this.map = L.map('map', { zoomControl: true }).setView([33.9908, -118.4675], 16);
+        this.map = L.map('map', { 
+            zoomControl: true,
+            attributionControl: false // Remove attribution overlay
+        }).setView([33.9908, -118.4675], 16);
 
         // Stamen Toner - beautiful black & white minimalist style
         const stadiaApiKey = '36709956-dae5-4f27-b1aa-810e619aaeaf';
         L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png?api_key=${stadiaApiKey}`, {
-            maxZoom: 20,
-            attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            maxZoom: 20
         }).addTo(this.map);
     }
 
