@@ -604,7 +604,15 @@ class TheWalkApp {
         // Stop location tracking
         locationService.stopTracking();
         
-        // Pause all audio (but don't reset)
+        // Pause ALL audio including oneshots by muting both buses
+        if (audioMixer.musicBus) {
+            audioMixer.musicBus.gain.setValueAtTime(0, audioMixer.audioContext.currentTime);
+        }
+        if (audioMixer.oneshotBus) {
+            audioMixer.oneshotBus.gain.setValueAtTime(0, audioMixer.audioContext.currentTime);
+        }
+        
+        // Also fade out individual music layers
         audioMixer.audioLayers.forEach((layer, layerId) => {
             if (layer.isPlaying && !layerId.startsWith('oneshot')) {
                 audioMixer.fadeLayer(layerId, 0, 0.5);
@@ -616,7 +624,7 @@ class TheWalkApp {
         this.ui.pauseButton.textContent = '▶️ RESUME';
         this.ui.pauseButton.style.backgroundColor = '#4CAF50';
         
-        console.log('The Walk paused (oneshot history preserved)');
+        console.log('The Walk paused (all audio muted, oneshot history preserved)');
     }
 
     // Resume the walk
@@ -626,6 +634,14 @@ class TheWalkApp {
         // Re-request wake lock when resuming
         await this.requestWakeLock();
         
+        // Unmute both audio buses
+        if (audioMixer.musicBus) {
+            audioMixer.musicBus.gain.setValueAtTime(1.0, audioMixer.audioContext.currentTime);
+        }
+        if (audioMixer.oneshotBus) {
+            audioMixer.oneshotBus.gain.setValueAtTime(1.0, audioMixer.audioContext.currentTime);
+        }
+        
         // Restart location tracking
         locationService.startTracking();
         
@@ -633,7 +649,7 @@ class TheWalkApp {
         this.ui.pauseButton.textContent = '⏸️ PAUSE';
         this.ui.pauseButton.style.backgroundColor = '#ff9800';
         
-        console.log('The Walk resumed');
+        console.log('The Walk resumed (audio buses unmuted)');
     }
 
     // Reset the walk (clears oneshot history)
