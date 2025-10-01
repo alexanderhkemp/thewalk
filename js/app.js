@@ -761,22 +761,14 @@ class TheWalkApp {
         const mapEl = document.getElementById('map');
         if (!mapEl || typeof L === 'undefined') return;
 
-        // Default view: Venice area as placeholder; will recenter on first GPS fix
+        // Default view: Venice area
         this.map = L.map('map', { zoomControl: true }).setView([33.9908, -118.4675], 16);
 
-        // Custom map image overlay with geographic bounds
-        const imageBounds = [
-            [33.9939, -118.4750], // Top-left corner
-            [33.9878, -118.4600]  // Bottom-right corner
-        ];
-        
-        L.imageOverlay('assets/images/map1.png', imageBounds, {
-            opacity: 1.0,
-            interactive: false
+        // Stamen Toner - beautiful black & white minimalist style
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
-        
-        // Fit map to show the entire custom map area
-        this.map.fitBounds(imageBounds);
     }
 
     // Update map marker and accuracy circle
