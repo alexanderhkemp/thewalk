@@ -189,23 +189,74 @@ class TheWalkApp {
 
     // Resilience: resume audio/GPS on visibility and restart watch if stale
     initializeResilienceHooks() {
+        // Handle visibility changes (app going to background/foreground)
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible' && this.isWalking) {
-                try { await audioMixer.resumeContext(); } catch {}
+                console.log('🔄 App returned to foreground - resuming...');
+                this.lastDebugMessage = 'Resuming from background...';
+                
+                // Re-request wake lock
+                await this.requestWakeLock();
+                
+                // Resume audio context
+                try { 
+                    await audioMixer.resumeContext(); 
+                    console.log('✅ Audio context resumed');
+                } catch (e) {
+                    console.warn('⚠️ Failed to resume audio:', e);
+                }
+                
+                // Restart GPS tracking
+                locationService.startWatch();
+                console.log('✅ GPS tracking restarted');
+                
+                // Force an immediate audio update if we have a position
+                if (locationService.currentPosition) {
+                    audioMixer.updateLocationAudio(locationService.currentPosition);
+                }
+            } else if (document.visibilityState === 'hidden') {
+                console.log('⏸️ App going to background');
+                this.lastDebugMessage = 'App backgrounded - will resume on return';
+            }
+        });
+        
+        // Handle page freeze/resume (iOS specific)
+        document.addEventListener('freeze', () => {
+            console.log('🧊 Page frozen by browser');
+        });
+        
+        document.addEventListener('resume', async () => {
+            console.log('🔄 Page resumed from freeze');
+            if (this.isWalking) {
+                await this.requestWakeLock();
+                await audioMixer.resumeContext().catch(() => {});
                 locationService.startWatch();
             }
         });
 
-        // Watchdog: every 10s, ensure GPS updates are fresh (<15s old)
+        // Watchdog: every 5s, ensure GPS updates are fresh and audio is running
         this._watchdog = setInterval(() => {
             if (!this.isWalking) return;
+            
             const age = locationService.getLastUpdateAge();
             if (age > 15000) {
-                console.warn('GPS watchdog: restarting watch (age ms =', age, ')');
+                console.warn('⚠️ GPS watchdog: restarting watch (age ms =', age, ')');
+                this.lastDebugMessage = `GPS stale (${Math.round(age/1000)}s) - restarting`;
                 locationService.startWatch();
+            }
+            
+            // Check if audio context is suspended
+            if (audioMixer.audioContext && audioMixer.audioContext.state === 'suspended') {
+                console.warn('⚠️ Audio context suspended - attempting resume');
+                this.lastDebugMessage = 'Audio suspended - resuming';
                 audioMixer.resumeContext().catch(() => {});
             }
-        }, 10000);
+            
+            // Re-request wake lock if it was released
+            if (!this.wakeLock && document.visibilityState === 'visible') {
+                this.requestWakeLock().catch(() => {});
+            }
+        }, 5000);
     }
 
     // Load configuration from server (supports JSON and GeoJSON)
@@ -622,18 +673,30 @@ class TheWalkApp {
     async requestWakeLock() {
         try {
             if ('wakeLock' in navigator) {
+                // Release old wake lock if it exists
+                if (this.wakeLock) {
+                    try {
+                        await this.wakeLock.release();
+                    } catch (e) {}
+                }
+                
                 this.wakeLock = await navigator.wakeLock.request('screen');
                 console.log('✅ Wake Lock active - screen will stay on');
+                this.lastDebugMessage = 'Wake lock active';
                 
                 // Re-request wake lock if it's released (e.g., when tab becomes inactive)
                 this.wakeLock.addEventListener('release', () => {
                     console.log('⚠️ Wake Lock released');
+                    this.lastDebugMessage = 'Wake lock released - will re-request';
+                    this.wakeLock = null;
                 });
             } else {
                 console.warn('⚠️ Wake Lock API not supported on this device');
+                this.lastDebugMessage = 'Wake lock not supported';
             }
         } catch (err) {
             console.error('❌ Failed to request wake lock:', err);
+            this.lastDebugMessage = `Wake lock failed: ${err.message}`;
         }
     }
 
