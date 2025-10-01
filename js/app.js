@@ -40,6 +40,8 @@ class TheWalkApp {
             console.log(`Configuration loaded: ${audioMixer.audioZones.length} zones`);
             // Render overlay with whatever position we have once zones exist
             this.updateDebugOverlay(locationService.currentPosition || null);
+            // Add oneshot markers to map
+            if (this.enableMap) this.addOneshotMarkers();
             // Don't preload audio automatically - wait for user gesture
             this.updateLoadingStatus();
         }).catch(err => {
@@ -176,6 +178,8 @@ class TheWalkApp {
                 // Update mix
                 audioMixer.updateLocationAudio(position);
                 this.updateActiveLayersDisplay();
+                // Update oneshot markers to show completion status
+                this.updateOneshotMarkers();
             }
             
             // Always update overlay with latest position (or null above)
@@ -772,6 +776,70 @@ class TheWalkApp {
         L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png?api_key=${stadiaApiKey}`, {
             maxZoom: 20
         }).addTo(this.map);
+        
+        // Store oneshot markers for later updates
+        this.oneshotMarkers = new Map();
+    }
+    
+    // Add oneshot markers to the map after zones are loaded
+    addOneshotMarkers() {
+        if (!this.map || !audioMixer.audioZones) return;
+        
+        audioMixer.audioZones.forEach(zone => {
+            if (!zone.isOneshot) return;
+            
+            const latlng = [zone.center.lat, zone.center.lng];
+            const isFinale = zone.id === 'oneshot_finale';
+            const oneshotNum = zone.id.replace('oneshot_', '');
+            
+            // Create custom icon for oneshots
+            const iconColor = isFinale ? '%23FF00FF' : '%23FF6B00'; // Magenta for finale, orange for others
+            const iconSize = isFinale ? 32 : 24;
+            const label = isFinale ? 'F' : oneshotNum;
+            
+            const oneshotIcon = L.icon({
+                iconUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${iconColor}" stroke="white" stroke-width="2"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">${label}</text></svg>`,
+                iconSize: [iconSize, iconSize],
+                iconAnchor: [iconSize/2, iconSize/2]
+            });
+            
+            const marker = L.marker(latlng, { icon: oneshotIcon }).addTo(this.map);
+            
+            // Add trigger radius circle
+            const circle = L.circle(latlng, {
+                radius: zone.radius,
+                color: iconColor.replace('%23', '#'),
+                fillColor: iconColor.replace('%23', '#'),
+                fillOpacity: 0.1,
+                weight: 1,
+                dashArray: '5, 5'
+            }).addTo(this.map);
+            
+            this.oneshotMarkers.set(zone.id, { marker, circle });
+        });
+    }
+    
+    // Update oneshot marker appearance based on completion status
+    updateOneshotMarkers() {
+        if (!audioMixer.playedOneshots) return;
+        
+        this.oneshotMarkers.forEach((markerData, zoneId) => {
+            const played = audioMixer.playedOneshots.has(zoneId);
+            if (played) {
+                // Change to green checkmark when completed
+                const isFinale = zoneId === 'oneshot_finale';
+                const iconSize = isFinale ? 32 : 24;
+                
+                const completedIcon = L.icon({
+                    iconUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%234CAF50" stroke="white" stroke-width="2"/><path d="M7 12l3 3 7-7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+                    iconSize: [iconSize, iconSize],
+                    iconAnchor: [iconSize/2, iconSize/2]
+                });
+                
+                markerData.marker.setIcon(completedIcon);
+                markerData.circle.setStyle({ fillOpacity: 0.05, dashArray: '2, 8' });
+            }
+        });
     }
 
     // Update map marker and accuracy circle
