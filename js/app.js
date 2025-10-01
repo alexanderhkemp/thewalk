@@ -764,10 +764,11 @@ class TheWalkApp {
         // Default view: Venice area
         this.map = L.map('map', { zoomControl: true }).setView([33.9908, -118.4675], 16);
 
-        // CartoDB Positron - clean, minimalist black & white style (no API key needed)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // Stamen Toner - beautiful black & white minimalist style
+        const stadiaApiKey = '36709956-dae5-4f27-b1aa-810e619aaeaf';
+        L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png?api_key=${stadiaApiKey}`, {
             maxZoom: 20,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(this.map);
     }
 
