@@ -352,11 +352,34 @@ class AudioMixer {
         
         const activeOneshotsList = Array.from(this.activeOneshots);
         
+        // Oneshot completion status (1-8 + finale)
+        const oneshotStatus = [];
+        for (let i = 1; i <= 8; i++) {
+            const zoneId = `oneshot_${i}`;
+            const played = this.playedOneshots.has(zoneId);
+            oneshotStatus.push(`${played ? '✅' : '⬜'} ${i}`);
+        }
+        const finaleZoneId = 'oneshot_finale';
+        const finalePlayed = this.playedOneshots.has(finaleZoneId);
+        oneshotStatus.push(`${finalePlayed ? '✅' : '⬜'} Finale`);
+        
+        // Get oneshot proximity info (stored by updateLocationAudio)
+        const proximityInfo = this._oneshotProximity || [];
+        const nearbyOneshots = proximityInfo
+            .filter(o => !o.played && parseFloat(o.distance) < 50)
+            .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+            .slice(0, 5);
+        
         panel.innerHTML = `
             <strong>Context:</strong> ${this.audioContext ? this.audioContext.state : 'null'}<br>
             <strong>Master Vol:</strong> ${this.masterVolume.toFixed(2)}<br>
-            <strong>Registered:</strong> ${registeredLayers.length}<br>
+            <strong>Music Bus:</strong> ${this.musicBus ? (this.musicBus.gain.value * 100).toFixed(0) + '%' : 'N/A'}<br>
             ${this.lastDebugMessage ? `<strong style="color:#ff6b00;">Debug:</strong> ${this.lastDebugMessage}<br>` : ''}
+            <strong>Oneshots Completed:</strong><br>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:0.9em;margin:4px 0;">
+                ${oneshotStatus.map(s => `<span>${s}</span>`).join('')}
+            </div>
+            ${nearbyOneshots.length > 0 ? `<strong style="color:#00ff00;">📍 Nearby Oneshots:</strong><br>${nearbyOneshots.map(o => `• ${o.id}: ${o.distance}m (trigger: ${o.radius}m)`).join('<br>')}<br>` : ''}
             <strong>Active Oneshots (${activeOneshotsList.length}):</strong><br>
             ${activeOneshotsList.length > 0 ? activeOneshotsList.map(id => `• ${id}`).join('<br>') : '• None'}<br>
             <strong>Parts:</strong><br>
@@ -445,13 +468,25 @@ class AudioMixer {
         if (!position || !this.isReady()) return;
 
         // --- Step 1: Handle Oneshots ---
+        const oneshotDistances = []; // Track all oneshot distances for debugging
+        
         this.audioZones.forEach(zone => {
             if (!zone.isOneshot) return;
             
             const distance = this.calculateDistance(position.latitude, position.longitude, zone.center.lat, zone.center.lng);
             const triggerRadius = Math.max(1, zone.radius || 10);
+            const alreadyPlayed = this.playedOneshots.has(zone.id);
             
-            if (distance <= triggerRadius && !this.playedOneshots.has(zone.id)) {
+            // Log proximity to ALL oneshots for debugging
+            oneshotDistances.push({
+                id: zone.id,
+                distance: distance.toFixed(1),
+                radius: triggerRadius,
+                played: alreadyPlayed,
+                willTrigger: distance <= triggerRadius && !alreadyPlayed
+            });
+            
+            if (distance <= triggerRadius && !alreadyPlayed) {
                 // Special check for finale oneshot - requires all other oneshots to be played first
                 if (zone.id === 'oneshot_finale') {
                     // Count how many regular oneshots (1-8) have been played
@@ -460,7 +495,7 @@ class AudioMixer {
                     ).length;
                     
                     if (regularOneshotsPlayed < 8) {
-                        console.log(`🔒 Finale oneshot locked: ${regularOneshotsPlayed}/8 oneshots completed`);
+                        console.log(`🔒 Finale oneshot locked: ${regularOneshotsPlayed}/8 oneshots completed (distance: ${distance.toFixed(1)}m)`);
                         this.lastDebugMessage = `Finale locked: ${regularOneshotsPlayed}/8 completed`;
                         this.updateAudioDebugPanel();
                         return; // Don't trigger finale yet
@@ -469,8 +504,8 @@ class AudioMixer {
                 }
                 
                 this.playedOneshots.add(zone.id);
-                console.log(`💥 Oneshot triggered: ${zone.id}`);
-                this.lastDebugMessage = `Triggered: ${zone.id}`;
+                console.log(`💥 Oneshot triggered: ${zone.id} (distance: ${distance.toFixed(1)}m, radius: ${triggerRadius}m, accuracy: ±${position.accuracy?.toFixed(1) || '?'}m)`);
+                this.lastDebugMessage = `Triggered: ${zone.id} @ ${distance.toFixed(1)}m`;
                 this.updateAudioDebugPanel();
                 
                 zone.audioLayers.forEach(async (layerId) => {
@@ -479,6 +514,19 @@ class AudioMixer {
                 });
             }
         });
+        
+        // Store proximity data for debug panel display
+        this._oneshotProximity = oneshotDistances;
+        
+        // Log oneshot proximity summary to console (only show closest 3 unplayed)
+        const unplayedClose = oneshotDistances
+            .filter(o => !o.played && parseFloat(o.distance) < 50)
+            .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+            .slice(0, 3);
+        
+        if (unplayedClose.length > 0) {
+            console.log(`📍 Nearby oneshots: ${unplayedClose.map(o => `${o.id}:${o.distance}m`).join(', ')}`);
+        }
 
         // --- Step 2: Calculate Music Layer Volumes and Identify Active Layers ---
         const layerTargetVolumes = new Map();
