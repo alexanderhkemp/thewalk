@@ -289,10 +289,11 @@ class AudioMixer {
         source.buffer = layer.buffer;
         source.loop = loop;
 
-        // Create gain node for this layer
+        // Create gain node for this layer - START AT ZERO to prevent blips
         const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = volume * this.masterVolume;
-
+        const currentTime = this.audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, currentTime); // Start silent
+        
         // Connect: source -> gain -> musicBus -> masterGain -> destination
         source.connect(gainNode);
         gainNode.connect(this.musicBus); // Route through music bus
@@ -302,9 +303,14 @@ class AudioMixer {
         layer.gainNode = gainNode;
         layer.isPlaying = true;
 
-        // Start playback
+        // Start playback (silent)
         source.start();
-        console.log(`🔊 Playing layer: ${layerId} vol=${volume} gain=${gainNode.gain.value}`);
+        
+        // Fade in to target volume over 50ms to prevent blips
+        const targetGain = volume * this.masterVolume;
+        gainNode.gain.linearRampToValueAtTime(targetGain, currentTime + 0.05);
+        
+        console.log(`🔊 Playing layer: ${layerId} vol=${volume} gain=${targetGain} (fading in)`);
         
         // Update visual debug panel
         this.updateAudioDebugPanel();
