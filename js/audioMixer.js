@@ -487,20 +487,17 @@ class AudioMixer {
             });
             
             if (distance <= triggerRadius && !alreadyPlayed) {
-                // Special check for finale oneshot - requires all other oneshots to be played first
+                // Special check for finale oneshot - only requires oneshot8 to have been played
                 if (zone.id === 'oneshot_finale') {
-                    // Count how many regular oneshots (1-8) have been played
-                    const regularOneshotsPlayed = Array.from(this.playedOneshots).filter(id => 
-                        id.startsWith('oneshot_') && id !== 'oneshot_finale'
-                    ).length;
+                    const oneshot8Played = this.playedOneshots.has('oneshot_8');
                     
-                    if (regularOneshotsPlayed < 8) {
-                        console.log(`🔒 Finale oneshot locked: ${regularOneshotsPlayed}/8 oneshots completed (distance: ${distance.toFixed(1)}m)`);
-                        this.lastDebugMessage = `Finale locked: ${regularOneshotsPlayed}/8 completed`;
+                    if (!oneshot8Played) {
+                        console.log(`🔒 Finale locked: oneshot8 not yet played (distance: ${distance.toFixed(1)}m)`);
+                        this.lastDebugMessage = `Finale locked: need oneshot8 first`;
                         this.updateAudioDebugPanel();
                         return; // Don't trigger finale yet
                     }
-                    console.log(`🎉 All oneshots completed! Triggering finale!`);
+                    console.log(`🎉 Oneshot8 completed! Triggering finale!`);
                 }
                 
                 this.playedOneshots.add(zone.id);
