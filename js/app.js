@@ -67,28 +67,51 @@ class TheWalkApp {
         if (testBtn) {
             testBtn.addEventListener('click', async () => {
                 try {
-                    await audioMixer.initialize();
+                    testBtn.textContent = 'LOADING...';
+                    testBtn.disabled = true;
+                    
+                    // Initialize audio context if needed
+                    if (!audioMixer.isInitialized) {
+                        await audioMixer.initialize();
+                    }
                     await audioMixer.resumeContext();
                     
                     // Stop any existing test audio first
-                    audioMixer.stopLayer('test_audio_layer');
+                    if (audioMixer.audioLayers.has('test_audio_layer')) {
+                        audioMixer.stopLayer('test_audio_layer');
+                    }
                     
-                    // Register and load a temporary test layer (NON-LOOPING)
-                    const testId = 'test_audio_layer';
-                    audioMixer.registerLayerDefaults(testId, { loop: false, volume: 1.0, url: 'audio/audioTEST.mp3' });
-                    await audioMixer.loadAudio('audio/audioTEST.mp3', testId);
+                    // Create a simple test tone using Web Audio API directly
+                    const ctx = audioMixer.audioContext;
+                    const testGain = ctx.createGain();
+                    testGain.connect(audioMixer.masterGain);
+                    testGain.gain.setValueAtTime(0.5, ctx.currentTime);
                     
-                    // Play once, no loop, 5 second duration max
-                    audioMixer.playLayer(testId, 1.0, false);
+                    // Load and play the test audio
+                    const response = await fetch('https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/UI-audiotest.mp3');
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
                     
-                    // Auto-stop after 5 seconds to prevent endless playback
-                    setTimeout(() => {
-                        audioMixer.stopLayer(testId);
-                    }, 5000);
+                    const source = ctx.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(testGain);
+                    source.start(0);
+                    
+                    testBtn.textContent = '♪ PLAYING...';
+                    
+                    // Reset button after audio finishes
+                    source.onended = () => {
+                        testBtn.textContent = 'Test Audio';
+                        testBtn.disabled = false;
+                    };
+                    
+                    console.log('✓ Test audio playing');
                     
                 } catch (e) {
-                    console.error('Audio test failed', e);
-                    alert('Audio test failed. Check console for details.');
+                    console.error('Audio test failed:', e);
+                    testBtn.textContent = 'Test Audio';
+                    testBtn.disabled = false;
+                    alert('Audio test failed: ' + e.message);
                 }
             });
         }
