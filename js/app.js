@@ -4,6 +4,7 @@ class TheWalkApp {
         this.isPaused = false;
         this.pendingLayers = [];
         this.wakeLock = null; // Screen wake lock
+        this.simulationMode = false; // GPS simulation mode
         // Map state
         this.enableMap = true; // Enable map with custom image overlay
         this.map = null;
