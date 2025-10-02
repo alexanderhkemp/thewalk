@@ -644,6 +644,13 @@ class AudioMixer {
             setTimeout(() => {
                 this.duckMusicBus(1.0, 30); // Fade back to 100% over 30 seconds
             }, 55600);
+        } else if (layerId === 'oneshot5') {
+            // Special case: oneshot5 (AI takes over) - drop music to 20%, fade back in over last 20 seconds
+            this.duckMusicBus(0.2, 0.5); // Duck to 20% over 0.5 seconds
+            // Schedule fade back in to start 20 seconds before end (at 70 seconds for 90s track)
+            setTimeout(() => {
+                this.duckMusicBus(1.0, 20); // Fade back to 100% over 20 seconds
+            }, 70000);
         } else {
             // Standard ducking: drop to 80%
             this.duckMusicBus(0.8, 0.3);
@@ -654,8 +661,8 @@ class AudioMixer {
             layer.isPlaying = false;
             console.log(`✓ Oneshot finished: ${layerId}`);
             
-            // Restore music volume when oneshot ends (unless it's oneshot8, which handles its own fade-in)
-            if (layerId !== 'oneshot8' && this.activeOneshots.size === 0) {
+            // Restore music volume when oneshot ends (unless it's oneshot5 or oneshot8, which handle their own fade-in)
+            if (layerId !== 'oneshot5' && layerId !== 'oneshot8' && this.activeOneshots.size === 0) {
                 this.duckMusicBus(1.0, 0.5); // Fade back to 100% over 0.5 seconds
             }
         };
