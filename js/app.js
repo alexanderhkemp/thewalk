@@ -484,10 +484,10 @@ class TheWalkApp {
             'sim-oneshot1': { lat: 33.989112, lng: -118.4627964, name: 'Oneshot 1' },
             'sim-oneshot2': { lat: 33.9897737, lng: -118.4637515, name: 'Oneshot 2' },
             'sim-oneshot3': { lat: 33.9904448, lng: -118.4655877, name: 'Oneshot 3' },
-            'sim-oneshot4': { lat: 33.991068, lng: -118.4681901, name: 'Oneshot 4' },
-            'sim-oneshot5': { lat: 33.9916976, lng: -118.4705502, name: 'Oneshot 5' },
-            'sim-oneshot6': { lat: 33.9915864, lng: -118.4695822, name: 'Oneshot 6' },
-            'sim-oneshot7': { lat: 33.9906851, lng: -118.4660381, name: 'Oneshot 7' },
+            'sim-oneshot4': { lat: 33.9915653, lng: -118.4695027, name: 'Oneshot 4' },
+            'sim-oneshot5': { lat: 33.9911149, lng: -118.4681834, name: 'Oneshot 5' },
+            'sim-oneshot6': { lat: 33.9917407, lng: -118.4705717, name: 'Oneshot 6' },
+            'sim-oneshot7': { lat: 33.9908539, lng: -118.4671044, name: 'Oneshot 7' },
             'sim-oneshot8': { lat: 33.9904132, lng: -118.4649178, name: 'Oneshot 8' },
             'sim-oneshot9': { lat: 33.9896510, lng: -118.4632691, name: 'Oneshot 9' }
         };
