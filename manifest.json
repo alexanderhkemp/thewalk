@@ -2,7 +2,7 @@
   "name": "THE WALK",
   "short_name": "THE WALK",
   "description": "An experimental audio installation that combines music, story telling, and real locations.",
-  "start_url": "/",
+  "start_url": "/?v=2",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
