@@ -76,9 +76,6 @@
                     <button id="pause-walk" class="btn" disabled>PAUSE</button>
                     <button id="reset-walk" class="btn" disabled>STOP</button>
                     <button id="test-audio" class="btn secondary">TEST AUDIO</button>
-                    <div style="margin-top: 15px; padding: 10px; background: rgba(255,107,0,0.1); border-radius: 8px; font-size: 0.9em; text-align: center;">
-                        💡 <strong>Keep screen on:</strong> The app works best when the screen stays on. If your screen locks, the app will resume when you return.
-                    </div>
                 </div>
                 
                 <!-- GPS Simulator for testing -->
@@ -108,20 +105,28 @@
                     </div>
                 </div>
                 
-                <!-- Audio Debug Panel -->
-                <div class="audio-debug-panel" id="audio-debug-panel" style="display: none;">
-                    <h4>🔊 Audio Status</h4>
-                    <div id="audio-debug-info">No audio playing</div>
-                </div>
+                <!-- Volume Control -->
                 <div class="volume-group">
-                    <label for="master-volume">Master Volume: <span id="volume-display">70%</span></label>
+                    <label for="master-volume">MASTER VOLUME</label>
                     <input id="master-volume" type="range" min="0" max="100" value="70" />
-
-            <div class="map-container">
-                <div id="location-map">
-                    <p>Interactive location visualization will appear here</p>
+                    <span id="volume-display">70%</span>
                 </div>
-            </div>
+                
+                <!-- Debug Info (always visible) -->
+                <div class="debug-info-section">
+                    <h4 style="text-align: center; margin-bottom: 15px; letter-spacing: 1px;">STATUS</h4>
+                    <div id="debug-info-content" class="debug-info-content">
+                        <div id="accuracy" class="debug-item">Accuracy: Unknown</div>
+                        <div id="active-layers" class="debug-item">Active Layers: None</div>
+                        
+                        <!-- Audio Debug Panel -->
+                        <div class="audio-debug-panel" id="audio-debug-panel">
+                            <h4>Audio Status</h4>
+                            <div id="audio-debug-info">No audio playing</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <div class="audio-layers" id="audio-layers">
