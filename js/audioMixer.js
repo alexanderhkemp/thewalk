@@ -352,16 +352,16 @@ class AudioMixer {
         
         const activeOneshotsList = Array.from(this.activeOneshots);
         
-        // Oneshot completion status (1-8 + finale)
+        // Oneshot completion status (1-9 + finale)
         const oneshotStatus = [];
-        for (let i = 1; i <= 8; i++) {
+        for (let i = 1; i <= 9; i++) {
             const zoneId = `oneshot_${i}`;
             const played = this.playedOneshots.has(zoneId);
             oneshotStatus.push(`${played ? '✅' : '⬜'} ${i}`);
         }
         const finaleZoneId = 'oneshot_finale';
         const finalePlayed = this.playedOneshots.has(finaleZoneId);
-        oneshotStatus.push(`${finalePlayed ? '✅' : '⬜'} Finale`);
+        oneshotStatus.push(`${finalePlayed ? '✅' : '⬜'} F`);
         
         // Get oneshot proximity info (stored by updateLocationAudio)
         const proximityInfo = this._oneshotProximity || [];
@@ -487,17 +487,23 @@ class AudioMixer {
             });
             
             if (distance <= triggerRadius && !alreadyPlayed) {
-                // Special check for finale oneshot - only requires oneshot8 to have been played
+                // If finale has been played, don't trigger any more oneshots
+                if (this.playedOneshots.has('oneshot_finale') && zone.id !== 'oneshot_finale') {
+                    console.log(`🏁 Walk completed - ignoring ${zone.id}`);
+                    return;
+                }
+                
+                // Special check for finale oneshot - only requires oneshot9 to have been played
                 if (zone.id === 'oneshot_finale') {
-                    const oneshot8Played = this.playedOneshots.has('oneshot_8');
+                    const oneshot9Played = this.playedOneshots.has('oneshot_9');
                     
-                    if (!oneshot8Played) {
-                        console.log(`🔒 Finale locked: oneshot8 not yet played (distance: ${distance.toFixed(1)}m)`);
-                        this.lastDebugMessage = `Finale locked: need oneshot8 first`;
+                    if (!oneshot9Played) {
+                        console.log(`🔒 Finale locked: oneshot9 not yet played (distance: ${distance.toFixed(1)}m)`);
+                        this.lastDebugMessage = `Finale locked: need oneshot9 first`;
                         this.updateAudioDebugPanel();
                         return; // Don't trigger finale yet
                     }
-                    console.log(`🎉 Oneshot8 completed! Triggering finale!`);
+                    console.log(`🎉 Oneshot9 completed! Triggering finale!`);
                 }
                 
                 this.playedOneshots.add(zone.id);
