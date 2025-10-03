@@ -481,6 +481,7 @@ class TheWalkApp {
             'sim-music3-1': { lat: 33.9907226, lng: -118.4663864, name: 'Music 3-1' },
             'sim-music4-1': { lat: 33.9917539, lng: -118.4702927, name: 'Music 4-1' },
             'sim-music5-1': { lat: 33.9911953, lng: -118.4683134, name: 'Music 5-1' },
+            'sim-music4-add1': { lat: 33.9915779, lng: -118.4689238, name: 'Music 4-add1' },
             'sim-oneshot1': { lat: 33.989112, lng: -118.4627964, name: 'Oneshot 1' },
             'sim-oneshot2': { lat: 33.9897737, lng: -118.4637515, name: 'Oneshot 2' },
             'sim-oneshot3': { lat: 33.9904448, lng: -118.4655877, name: 'Oneshot 3' },
