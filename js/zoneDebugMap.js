@@ -18,10 +18,10 @@ class ZoneDebugMap {
         // Initialize map centered on the walk area
         this.map = L.map('zone-map').setView([33.9905, -118.4665], 16);
 
-        // Add tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+        // Add Stadia Dark tile layer (same as main map)
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 20
         }).addTo(this.map);
 
         // Load zones and add markers
