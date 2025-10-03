@@ -58,16 +58,9 @@
             
             <!-- Audio Visualizer -->
             <div class="audio-visualizer">
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
+                <svg id="waveform" width="100%" height="60" viewBox="0 0 500 60" preserveAspectRatio="none">
+                    <path id="wave-path" d="" fill="none" stroke="#00ff00" stroke-width="2" stroke-linecap="round"/>
+                </svg>
             </div>
 
             <section class="controls">
@@ -140,10 +133,12 @@
     <script src="js/audioMixer.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Volume-based visualizer - bars respond to total audio volume
-        function updateVisualizer() {
-            const bars = document.querySelectorAll('.visualizer-bar');
-            
+        // Sleek waveform visualizer
+        const wavePath = document.getElementById('wave-path');
+        const points = 80;
+        let phase = 0;
+        
+        function updateWaveform() {
             // Calculate total volume from all playing layers
             let totalVolume = 0;
             if (window.audioMixer && window.audioMixer.audioLayers) {
@@ -154,26 +149,29 @@
                 });
             }
             
-            // Apply master volume multiplier
+            // Apply master volume
             if (window.audioMixer && window.audioMixer.masterVolume) {
                 totalVolume *= window.audioMixer.masterVolume;
             }
             
-            // Calculate how many bars should be lit (0-5 bars for 0-1.5 volume range)
-            const barCount = Math.min(Math.ceil((totalVolume / 1.5) * bars.length), bars.length);
+            // Normalize amplitude (0-20 pixel range based on volume)
+            const amplitude = Math.min(totalVolume * 15, 20);
             
-            bars.forEach((bar, index) => {
-                if (index < barCount && totalVolume > 0.05) {
-                    bar.classList.add('active');
-                } else {
-                    bar.classList.remove('active');
-                }
-            });
+            // Generate smooth waveform path
+            let pathData = 'M 0 30';
+            for (let i = 0; i <= points; i++) {
+                const x = (i / points) * 500;
+                const y = 30 + Math.sin((i * 0.2) + phase) * amplitude;
+                pathData += ` L ${x} ${y}`;
+            }
             
-            requestAnimationFrame(updateVisualizer);
+            wavePath.setAttribute('d', pathData);
+            phase += 0.1; // Animate wave movement
+            
+            requestAnimationFrame(updateWaveform);
         }
         
-        updateVisualizer();
+        updateWaveform();
     </script>
 </body>
 </html>
