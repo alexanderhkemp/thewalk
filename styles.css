@@ -34,12 +34,12 @@ body {
 }
 
 .logo-main {
-    width: 140px;
+    width: 120px;
     height: auto;
 }
 
 .logo-icon {
-    width: 40px;
+    width: 50px;
     height: auto;
 }
 
@@ -55,7 +55,7 @@ body {
 #map {
     width: 100%;
     max-width: 500px;
-    height: 400px;
+    height: 360px;
     border: 2px solid #ffffff;
     margin-bottom: 15px;
 }
@@ -97,7 +97,7 @@ body {
     border: none;
     padding: 15px 30px;
     font-family: 'Impact', 'Arial Black', sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.2s;
@@ -183,7 +183,7 @@ body {
     border: none;
     color: #ffffff;
     font-family: 'Impact', 'Arial Black', sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: 1px;
     cursor: pointer;
     text-decoration: underline;
