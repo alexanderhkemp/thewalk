@@ -912,6 +912,7 @@ class TheWalkApp {
         this.zoneDebugMarkers = [];
         this.zoneDebugCircles = [];
         this.zoneDebugUserMarker = null;
+        this.zoneDebugAccuracyCircle = null;
     }
 
     addZoneDebugMarkers() {
@@ -991,9 +992,12 @@ class TheWalkApp {
         const lat = position.latitude;
         const lng = position.longitude;
 
-        // Remove old marker
+        // Remove old marker AND accuracy circle (no trail)
         if (this.zoneDebugUserMarker) {
             this.zoneMap.removeLayer(this.zoneDebugUserMarker);
+        }
+        if (this.zoneDebugAccuracyCircle) {
+            this.zoneMap.removeLayer(this.zoneDebugAccuracyCircle);
         }
 
         // Add new marker
@@ -1006,9 +1010,9 @@ class TheWalkApp {
             fillOpacity: 1
         }).addTo(this.zoneMap);
 
-        // Add accuracy circle
+        // Add accuracy circle (store reference to remove it next time)
         if (position.accuracy) {
-            L.circle([lat, lng], {
+            this.zoneDebugAccuracyCircle = L.circle([lat, lng], {
                 radius: position.accuracy,
                 color: '#ffffff',
                 weight: 1,
