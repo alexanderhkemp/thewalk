@@ -986,10 +986,10 @@ class TheWalkApp {
     }
 
     updateZoneDebugUserPosition(position) {
-        if (!this.zoneMap) return;
+        if (!this.zoneMap || !position) return;
 
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+        const lat = position.latitude;
+        const lng = position.longitude;
 
         // Remove old marker
         if (this.zoneDebugUserMarker) {
@@ -1007,9 +1007,9 @@ class TheWalkApp {
         }).addTo(this.zoneMap);
 
         // Add accuracy circle
-        if (position.coords.accuracy) {
+        if (position.accuracy) {
             L.circle([lat, lng], {
-                radius: position.coords.accuracy,
+                radius: position.accuracy,
                 color: '#ffffff',
                 weight: 1,
                 fillColor: '#ffffff',
