@@ -140,29 +140,41 @@
     <script src="js/audioMixer.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Audio visualizer animation
-        setInterval(() => {
+        // Audio visualizer animation using Web Audio API analyser
+        function updateVisualizer() {
             const bars = document.querySelectorAll('.visualizer-bar');
-            let activeCount = 0;
             
-            if (window.audioMixer && window.audioMixer.audioLayers) {
-                window.audioMixer.audioLayers.forEach((layer) => {
-                    if (layer.isPlaying && layer.gainNode && layer.gainNode.gain.value > 0.01) {
-                        activeCount++;
+            if (window.audioMixer && window.audioMixer.analyser && window.audioMixer.analyserData) {
+                // Get frequency data from analyser
+                window.audioMixer.analyser.getByteFrequencyData(window.audioMixer.analyserData);
+                
+                // Update each bar based on frequency data
+                bars.forEach((bar, index) => {
+                    // Sample different frequency ranges for each bar
+                    const dataIndex = Math.floor((index / bars.length) * window.audioMixer.analyserData.length);
+                    const value = window.audioMixer.analyserData[dataIndex];
+                    
+                    // Convert to percentage (0-255 -> 0-100%)
+                    const height = (value / 255) * 100;
+                    
+                    if (height > 5) {
+                        bar.classList.add('active');
+                        bar.style.height = `${Math.max(20, height)}%`;
+                    } else {
+                        bar.classList.remove('active');
+                        bar.style.height = '20%';
                     }
                 });
+            } else {
+                // Fallback: remove active state if no analyser
+                bars.forEach(bar => bar.classList.remove('active'));
             }
             
-            bars.forEach((bar, index) => {
-                if (activeCount > 0) {
-                    bar.classList.add('active');
-                    // Stagger the animation slightly for visual effect
-                    bar.style.animationDelay = `${index * 0.1}s`;
-                } else {
-                    bar.classList.remove('active');
-                }
-            });
-        }, 200);
+            requestAnimationFrame(updateVisualizer);
+        }
+        
+        // Start visualizer
+        updateVisualizer();
     </script>
 </body>
 </html>
