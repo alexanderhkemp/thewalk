@@ -837,7 +837,7 @@ class TheWalkApp {
         ` : '<div class="muted">No position yet</div>';
         this.ui.debugZones.innerHTML = `
             <div class="muted" style="margin-bottom:6px;">
-              ${debugTime} · Coords: ${coord} · GPS age: ${ageLabel} · Zones: ${zoneCount} · <strong>Build: c1727e7</strong>${lastErr ? ` · Last error: ${lastErr}` : ''}
+              ${debugTime} · Coords: ${coord} · GPS age: ${ageLabel} · Zones: ${zoneCount} · <strong>Build: v1.1</strong>${lastErr ? ` · Last error: ${lastErr}` : ''}
             </div>
             ${zonesHtml}
         `;
