@@ -55,13 +55,6 @@
             
             <!-- Coordinates below map -->
             <div id="coordinates" class="coordinates-display">Waiting for location...</div>
-            
-            <!-- Audio Visualizer -->
-            <div class="audio-visualizer">
-                <svg id="waveform" viewBox="0 0 400 40" preserveAspectRatio="xMidYMid meet">
-                    <path id="wave-path" d="" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
 
             <section class="controls">
                 <div class="button-group">
@@ -132,50 +125,5 @@
     <script src="js/locationService.js"></script>
     <script src="js/audioMixer.js"></script>
     <script src="js/app.js"></script>
-    <script>
-        // Sleek waveform visualizer
-        const wavePath = document.getElementById('wave-path');
-        const points = 60;
-        let phase = 0;
-        
-        function updateWaveform() {
-            // Calculate total volume from all playing layers
-            let totalVolume = 0;
-            if (window.audioMixer && window.audioMixer.audioLayers) {
-                window.audioMixer.audioLayers.forEach(layer => {
-                    if (layer.isPlaying && layer.gainNode) {
-                        totalVolume += layer.gainNode.gain.value;
-                    }
-                });
-            }
-            
-            // Apply master volume
-            if (window.audioMixer && window.audioMixer.masterVolume) {
-                totalVolume *= window.audioMixer.masterVolume;
-            }
-            
-            // More responsive amplitude (0-15 pixel range, scales with volume)
-            const amplitude = totalVolume > 0.01 ? Math.min(totalVolume * 10, 15) : 0;
-            
-            // Generate smooth waveform path
-            let pathData = 'M 0 20';
-            for (let i = 0; i <= points; i++) {
-                const x = (i / points) * 400;
-                const y = 20 + Math.sin((i * 0.15) + phase) * amplitude;
-                pathData += ` L ${x} ${y}`;
-            }
-            
-            wavePath.setAttribute('d', pathData);
-            
-            // Only animate if audio is playing
-            if (amplitude > 0) {
-                phase += 0.15;
-            }
-            
-            requestAnimationFrame(updateWaveform);
-        }
-        
-        updateWaveform();
-    </script>
 </body>
 </html>

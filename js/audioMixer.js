@@ -40,16 +40,8 @@ class AudioMixer {
             
             // Create master gain
             this.masterGain = this.audioContext.createGain();
+            this.masterGain.connect(this.audioContext.destination);
             this.masterGain.gain.setValueAtTime(this.masterVolume, this.audioContext.currentTime);
-            
-            // Create analyser for visualizer
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 256;
-            this.analyserData = new Uint8Array(this.analyser.frequencyBinCount);
-            
-            // Connect: masterGain -> analyser -> destination
-            this.masterGain.connect(this.analyser);
-            this.analyser.connect(this.audioContext.destination);
             
             // Create music bus (for distance-based music)
             this.musicBus = this.audioContext.createGain();
