@@ -76,23 +76,9 @@ body {
 
 /* Audio Visualizer */
 .audio-visualizer {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 4px;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
     height: 40px;
-    margin-bottom: 20px;
-}
-
-.visualizer-bar {
-    width: 8px;
-    background-color: #ffffff;
-    height: 20%;
-    transition: height 0.1s ease;
-}
-
-.visualizer-bar.active {
-    animation: pulse 0.6s ease-in-out infinite;
 }
 
 @keyframes pulse {
