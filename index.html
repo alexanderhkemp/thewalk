@@ -144,7 +144,7 @@
         function updateVisualizer() {
             const bars = document.querySelectorAll('.visualizer-bar');
             
-            if (window.audioMixer && window.audioMixer.analyser && window.audioMixer.analyserData) {
+            if (window.audioMixer && window.audioMixer.analyser && window.audioMixer.analyserData && window.audioMixer.audioContext && window.audioMixer.audioContext.state === 'running') {
                 // Get frequency data from analyser
                 window.audioMixer.analyser.getByteFrequencyData(window.audioMixer.analyserData);
                 
@@ -166,8 +166,15 @@
                     }
                 });
             } else {
-                // Fallback: remove active state if no analyser
-                bars.forEach(bar => bar.classList.remove('active'));
+                // Fallback: show generic animation if analyser not ready
+                bars.forEach((bar, index) => {
+                    const isPlaying = window.audioMixer && window.audioMixer.audioLayers && Array.from(window.audioMixer.audioLayers.values()).some(l => l.isPlaying);
+                    if (isPlaying) {
+                        bar.classList.add('active');
+                    } else {
+                        bar.classList.remove('active');
+                    }
+                });
             }
             
             requestAnimationFrame(updateVisualizer);
