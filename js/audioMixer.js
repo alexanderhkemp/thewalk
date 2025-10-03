@@ -652,8 +652,8 @@ class AudioMixer {
                 this.duckMusicBus(1.0, 20); // Fade back to 100% over 20 seconds
             }, 70000);
         } else {
-            // Standard ducking: drop to 70%
-            this.duckMusicBus(0.7, 0.3);
+            // Standard ducking: drop to 60%
+            this.duckMusicBus(0.6, 0.3);
         }
 
         source.onended = () => {
