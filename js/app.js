@@ -125,24 +125,23 @@ class TheWalkApp {
             requestGPSBtn.addEventListener('click', async () => {
                 try {
                     requestGPSBtn.disabled = true;
-                    requestGPSBtn.textContent = '📍 Requesting permission...';
+                    requestGPSBtn.textContent = 'Requesting permission...';
                     
                     const permissionGranted = await locationService.requestPermission();
                     
                     if (permissionGranted) {
-                        requestGPSBtn.textContent = '✅ GPS Allowed';
+                        requestGPSBtn.textContent = 'GPS Allowed';
                         requestGPSBtn.style.backgroundColor = '#4CAF50';
                         startWalkBtn.disabled = false;
-                        alert('GPS permission granted! Now click "Load and Start" to begin.');
                     } else {
-                        requestGPSBtn.textContent = '❌ GPS Denied';
+                        requestGPSBtn.textContent = 'GPS Denied';
                         requestGPSBtn.style.backgroundColor = '#f44336';
                         requestGPSBtn.disabled = false;
                         alert('GPS permission was denied. Please enable location access in your browser settings and try again.');
                     }
                 } catch (error) {
                     console.error('GPS permission error:', error);
-                    requestGPSBtn.textContent = '❌ Error';
+                    requestGPSBtn.textContent = 'Error';
                     requestGPSBtn.disabled = false;
                     alert('Error requesting GPS permission: ' + error.message);
                 }
@@ -463,7 +462,7 @@ class TheWalkApp {
             this.ui.startButton.textContent = 'Start The Walk';
             this.ui.startButton.disabled = false;
         } else if (configReady) {
-            this.ui.startButton.textContent = 'Load Audio & Start';
+            this.ui.startButton.textContent = 'Start';
             this.ui.startButton.disabled = false;
         } else {
             this.ui.startButton.textContent = 'Loading...';
@@ -645,7 +644,7 @@ class TheWalkApp {
         });
         
         this.isPaused = true;
-        this.ui.pauseButton.textContent = '▶️ RESUME';
+        this.ui.pauseButton.textContent = 'RESUME';
         this.ui.pauseButton.style.backgroundColor = '#4CAF50';
         
         console.log('The Walk paused (all audio muted, oneshot history preserved)');
@@ -670,7 +669,7 @@ class TheWalkApp {
         locationService.startTracking();
         
         this.isPaused = false;
-        this.ui.pauseButton.textContent = '⏸️ PAUSE';
+        this.ui.pauseButton.textContent = 'PAUSE';
         this.ui.pauseButton.style.backgroundColor = '#ff9800';
         
         console.log('The Walk resumed (audio buses unmuted)');
@@ -700,8 +699,8 @@ class TheWalkApp {
         this.ui.startButton.disabled = false;
         this.ui.pauseButton.disabled = true;
         this.ui.resetButton.disabled = true;
-        this.ui.startButton.textContent = '▶️ Load and Start';
-        this.ui.pauseButton.textContent = '⏸️ PAUSE';
+        this.ui.startButton.textContent = 'Start';
+        this.ui.pauseButton.textContent = 'PAUSE';
         this.ui.pauseButton.style.backgroundColor = '#ff9800';
         this.ui.activeLayers.textContent = 'No active layers';
         this.ui.audioLayers.innerHTML = '';
