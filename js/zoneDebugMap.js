@@ -18,10 +18,10 @@ class ZoneDebugMap {
         // Initialize map centered on the walk area
         this.map = L.map('zone-map').setView([33.9905, -118.4665], 16);
 
-        // Add Stamen Toner tile layer (same as main map)
-        const stadiaApiKey = '36709956-dae5-4f27-b1aa-810e619aaeaf';
-        L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png?api_key=${stadiaApiKey}`, {
-            maxZoom: 20
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
         }).addTo(this.map);
 
         // Load zones and add markers
