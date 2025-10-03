@@ -42,7 +42,10 @@ class TheWalkApp {
             // Render overlay with whatever position we have once zones exist
             this.updateDebugOverlay(locationService.currentPosition || null);
             // Add oneshot markers to map
-            if (this.enableMap) this.addOneshotMarkers();
+            if (this.enableMap) {
+                this.addOneshotMarkers();
+                this.addZoneDebugMarkers();
+            }
             // Don't preload audio automatically - wait for user gesture
             this.updateLoadingStatus();
         }).catch(err => {
@@ -193,7 +196,10 @@ class TheWalkApp {
             }
             
             this.updateLocationDisplay(position);
-            if (this.enableMap) this.updateMap(position);
+            if (this.enableMap) {
+                this.updateMap(position);
+                this.updateZoneDebugUserPosition(position);
+            }
             
             if (this.isWalking) {
                 // Progressive load nearby layers (essential ones already preloaded)
@@ -882,6 +888,124 @@ class TheWalkApp {
         
         // Store oneshot markers for later updates
         this.oneshotMarkers = new Map();
+
+        // Initialize zone debug map
+        this.initializeZoneDebugMap();
+    }
+
+    initializeZoneDebugMap() {
+        const zoneMapEl = document.getElementById('zone-map');
+        if (!zoneMapEl || typeof L === 'undefined') return;
+
+        // Initialize zone debug map
+        this.zoneMap = L.map('zone-map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([33.9905, -118.4665], 16);
+
+        // Use same tile layer as main map
+        const stadiaApiKey = '36709956-dae5-4f27-b1aa-810e619aaeaf';
+        L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png?api_key=${stadiaApiKey}`, {
+            maxZoom: 20
+        }).addTo(this.zoneMap);
+
+        this.zoneDebugMarkers = [];
+        this.zoneDebugCircles = [];
+        this.zoneDebugUserMarker = null;
+    }
+
+    addZoneDebugMarkers() {
+        if (!this.zoneMap || !audioMixer.audioZones) return;
+
+        audioMixer.audioZones.forEach(zone => {
+            // Only show music zones
+            if (!zone.id.startsWith('music_')) return;
+
+            const lat = zone.center.lat;
+            const lng = zone.center.lng;
+            const radius = zone.radius;
+            const fadeDistance = zone.fadeDistance;
+
+            // Color coding by music section
+            let color = '#00ff00';
+            if (zone.id.includes('music_1')) color = '#ff0000';
+            else if (zone.id.includes('music_2')) color = '#00ff00';
+            else if (zone.id.includes('music_3')) color = '#0000ff';
+            else if (zone.id.includes('music_4')) color = '#ffff00';
+            else if (zone.id.includes('music_5')) color = '#ff00ff';
+
+            // Add marker
+            const marker = L.circleMarker([lat, lng], {
+                radius: 5,
+                fillColor: color,
+                color: '#fff',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(this.zoneMap);
+
+            marker.bindPopup(`
+                <strong>${zone.id}</strong><br>
+                Radius: ${radius}m<br>
+                Fade: ${fadeDistance}m<br>
+                Max Volume: ${zone.maxVolume}
+            `);
+
+            // Add inner circle (zone radius)
+            const innerCircle = L.circle([lat, lng], {
+                radius: radius,
+                color: color,
+                weight: 2,
+                fillColor: color,
+                fillOpacity: 0.1
+            }).addTo(this.zoneMap);
+
+            // Add outer circle (fade distance)
+            const outerCircle = L.circle([lat, lng], {
+                radius: radius + fadeDistance,
+                color: color,
+                weight: 1,
+                dashArray: '5, 5',
+                fillColor: color,
+                fillOpacity: 0.05
+            }).addTo(this.zoneMap);
+
+            this.zoneDebugMarkers.push(marker);
+            this.zoneDebugCircles.push(innerCircle, outerCircle);
+        });
+    }
+
+    updateZoneDebugUserPosition(position) {
+        if (!this.zoneMap) return;
+
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // Remove old marker
+        if (this.zoneDebugUserMarker) {
+            this.zoneMap.removeLayer(this.zoneDebugUserMarker);
+        }
+
+        // Add new marker
+        this.zoneDebugUserMarker = L.circleMarker([lat, lng], {
+            radius: 8,
+            fillColor: '#ffffff',
+            color: '#000',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 1
+        }).addTo(this.zoneMap);
+
+        // Add accuracy circle
+        if (position.coords.accuracy) {
+            L.circle([lat, lng], {
+                radius: position.coords.accuracy,
+                color: '#ffffff',
+                weight: 1,
+                fillColor: '#ffffff',
+                fillOpacity: 0.1
+            }).addTo(this.zoneMap);
+        }
     }
     
     // Add oneshot markers to the map after zones are loaded
