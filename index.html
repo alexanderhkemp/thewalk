@@ -140,47 +140,35 @@
     <script src="js/audioMixer.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Audio visualizer animation using Web Audio API analyser
+        // Volume-based visualizer - bars respond to total audio volume
         function updateVisualizer() {
             const bars = document.querySelectorAll('.visualizer-bar');
             
-            if (window.audioMixer && window.audioMixer.analyser && window.audioMixer.analyserData && window.audioMixer.audioContext && window.audioMixer.audioContext.state === 'running') {
-                // Get frequency data from analyser
-                window.audioMixer.analyser.getByteFrequencyData(window.audioMixer.analyserData);
-                
-                // Update each bar based on frequency data
-                bars.forEach((bar, index) => {
-                    // Sample different frequency ranges for each bar
-                    const dataIndex = Math.floor((index / bars.length) * window.audioMixer.analyserData.length);
-                    const value = window.audioMixer.analyserData[dataIndex];
-                    
-                    // Convert to percentage (0-255 -> 0-100%)
-                    const height = (value / 255) * 100;
-                    
-                    if (height > 5) {
-                        bar.classList.add('active');
-                        bar.style.height = `${Math.max(20, height)}%`;
-                    } else {
-                        bar.classList.remove('active');
-                        bar.style.height = '20%';
-                    }
-                });
-            } else {
-                // Fallback: show generic animation if analyser not ready
-                bars.forEach((bar, index) => {
-                    const isPlaying = window.audioMixer && window.audioMixer.audioLayers && Array.from(window.audioMixer.audioLayers.values()).some(l => l.isPlaying);
-                    if (isPlaying) {
-                        bar.classList.add('active');
-                    } else {
-                        bar.classList.remove('active');
+            // Calculate total volume from all playing layers
+            let totalVolume = 0;
+            if (window.audioMixer && window.audioMixer.audioLayers) {
+                window.audioMixer.audioLayers.forEach(layer => {
+                    if (layer.isPlaying && layer.gainNode) {
+                        totalVolume += layer.gainNode.gain.value;
                     }
                 });
             }
             
+            // Normalize volume (typically 0-3 range for multiple layers)
+            const normalizedVolume = Math.min(totalVolume / 3, 1);
+            const activeBarCount = Math.ceil(normalizedVolume * bars.length);
+            
+            bars.forEach((bar, index) => {
+                if (index < activeBarCount) {
+                    bar.classList.add('active');
+                } else {
+                    bar.classList.remove('active');
+                }
+            });
+            
             requestAnimationFrame(updateVisualizer);
         }
         
-        // Start visualizer
         updateVisualizer();
     </script>
 </body>
