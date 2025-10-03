@@ -154,22 +154,26 @@
                 });
             }
             
-            // Normalize volume (typically 0-3 range for multiple layers)
-            const normalizedVolume = Math.min(totalVolume / 3, 1);
-            const activeBarCount = Math.ceil(normalizedVolume * bars.length);
+            // Apply master volume multiplier
+            if (window.audioMixer && window.audioMixer.masterVolume) {
+                totalVolume *= window.audioMixer.masterVolume;
+            }
+            
+            // Calculate how many bars should be lit (0-5 bars for 0-1.5 volume range)
+            const barCount = Math.min(Math.ceil((totalVolume / 1.5) * bars.length), bars.length);
             
             bars.forEach((bar, index) => {
-                if (index < activeBarCount) {
+                if (index < barCount && totalVolume > 0.05) {
                     bar.classList.add('active');
                 } else {
                     bar.classList.remove('active');
                 }
             });
             
-            requestAnimationFrame(updateVisualizer);
+            requestAnimationFrame(updateVolumeMeter);
         }
         
-        updateVisualizer();
+        updateVolumeMeter();
     </script>
 </body>
 </html>
