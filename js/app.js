@@ -951,6 +951,16 @@ class TheWalkApp {
                 Max Volume: ${zone.maxVolume}
             `);
 
+            // Add permanent label
+            L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'zone-label',
+                    html: `<div style="color: white; font-size: 10px; font-weight: bold; text-shadow: 1px 1px 2px black; white-space: nowrap;">${zone.id}</div>`,
+                    iconSize: [0, 0],
+                    iconAnchor: [-8, 0]
+                })
+            }).addTo(this.zoneMap);
+
             // Add inner circle (zone radius)
             const innerCircle = L.circle([lat, lng], {
                 radius: radius,
