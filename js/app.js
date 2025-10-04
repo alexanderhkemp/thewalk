@@ -198,7 +198,7 @@ class TheWalkApp {
             this.updateLocationDisplay(position);
             if (this.enableMap) {
                 this.updateMap(position);
-                this.updateZoneDebugUserPosition(position);
+                // Zone debug map is static - no position updates needed
             }
             
             if (this.isWalking) {
@@ -911,8 +911,6 @@ class TheWalkApp {
 
         this.zoneDebugMarkers = [];
         this.zoneDebugCircles = [];
-        this.zoneDebugUserMarker = null;
-        this.zoneDebugAccuracyCircle = null;
     }
 
     addZoneDebugMarkers() {
@@ -986,41 +984,6 @@ class TheWalkApp {
         });
     }
 
-    updateZoneDebugUserPosition(position) {
-        if (!this.zoneMap || !position) return;
-
-        const lat = position.latitude;
-        const lng = position.longitude;
-
-        // Remove old marker AND accuracy circle (no trail)
-        if (this.zoneDebugUserMarker) {
-            this.zoneMap.removeLayer(this.zoneDebugUserMarker);
-        }
-        if (this.zoneDebugAccuracyCircle) {
-            this.zoneMap.removeLayer(this.zoneDebugAccuracyCircle);
-        }
-
-        // Add new marker
-        this.zoneDebugUserMarker = L.circleMarker([lat, lng], {
-            radius: 8,
-            fillColor: '#ffffff',
-            color: '#000',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 1
-        }).addTo(this.zoneMap);
-
-        // Add accuracy circle (store reference to remove it next time)
-        if (position.accuracy) {
-            this.zoneDebugAccuracyCircle = L.circle([lat, lng], {
-                radius: position.accuracy,
-                color: '#ffffff',
-                weight: 1,
-                fillColor: '#ffffff',
-                fillOpacity: 0.1
-            }).addTo(this.zoneMap);
-        }
-    }
     
     // Add oneshot markers to the map after zones are loaded
     addOneshotMarkers() {
