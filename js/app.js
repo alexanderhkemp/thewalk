@@ -410,7 +410,7 @@ class TheWalkApp {
             // Main music layers for each section
             'audio1-1-main',
             'audio2-1-main',
-            'audio3-2-ob6',
+            'audio3-1-main',
             'audio4-1-main',
             'audio5-1-main',
             // First two oneshots
