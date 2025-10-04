@@ -2,28 +2,29 @@
   "name": "THE WALK",
   "short_name": "THE WALK",
   "description": "An experimental audio installation that combines music, story telling, and real locations.",
-  "start_url": "/?v=2",
+  "start_url": "/?v=3",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {
+      "src": "/assets/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/assets/icons/TW192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/assets/icons/TW512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/assets/icons/TW180.png",
-      "sizes": "180x180",
-      "type": "image/png"
+      "purpose": "any"
     }
   ]
 }
