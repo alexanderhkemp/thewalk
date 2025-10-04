@@ -145,7 +145,15 @@ class AudioMixer {
     // Progressive preload: load layers for zones near the user to avoid pops
     async progressivePreload(position) {
         if (!position) return;
+        
+        // Track loading state to prevent overload
+        if (!this.loadingQueue) this.loadingQueue = new Set();
+        if (!this.maxConcurrentLoads) this.maxConcurrentLoads = 3; // Limit concurrent loads
+        
         const margin = 150; // meters beyond zone edge to begin loading
+        
+        // Build list of zones with distances
+        const nearbyZones = [];
         for (const zone of this.audioZones) {
             const d = this.calculateDistance(
                 position.latitude,
@@ -155,10 +163,31 @@ class AudioMixer {
             );
             const preloadDistance = (zone.radius || 0) + (zone.fadeDistance || 0) + margin;
             if (d <= preloadDistance) {
-                for (const layerId of zone.audioLayers) {
-                    // kick off loads in background, no await to keep UI snappy
-                    this.ensureLayerLoaded(layerId);
+                nearbyZones.push({ zone, distance: d });
+            }
+        }
+        
+        // Sort by distance (closest first)
+        nearbyZones.sort((a, b) => a.distance - b.distance);
+        
+        // Load layers from closest zones first, respecting concurrent limit
+        for (const { zone } of nearbyZones) {
+            for (const layerId of zone.audioLayers) {
+                const layer = this.audioLayers.get(layerId);
+                
+                // Skip if already loaded or currently loading
+                if (layer?.buffer || this.loadingQueue.has(layerId)) continue;
+                
+                // Respect concurrent load limit
+                if (this.loadingQueue.size >= this.maxConcurrentLoads) {
+                    return; // Stop loading more until current batch finishes
                 }
+                
+                // Mark as loading and kick off load
+                this.loadingQueue.add(layerId);
+                this.ensureLayerLoaded(layerId).finally(() => {
+                    this.loadingQueue.delete(layerId);
+                });
             }
         }
     }
