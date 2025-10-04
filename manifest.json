@@ -9,19 +9,19 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/thewalkassets/graphics/TW180.png",
+      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/graphics/TW180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/thewalkassets/graphics/TW192.png",
+      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/graphics/TW192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/thewalkassets/graphics/TW512.png",
+      "src": "https://pub-8d84d65aec3a43b7a4efb8d4be12ceef.r2.dev/graphics/TW512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
