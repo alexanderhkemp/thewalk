@@ -148,7 +148,7 @@ class AudioMixer {
         
         // Track loading state to prevent overload
         if (!this.loadingQueue) this.loadingQueue = new Set();
-        if (!this.maxConcurrentLoads) this.maxConcurrentLoads = 3; // Limit concurrent loads
+        if (!this.maxConcurrentLoads) this.maxConcurrentLoads = 2; // Limit concurrent loads (reduced from 3)
         
         const margin = 150; // meters beyond zone edge to begin loading
         
@@ -622,10 +622,34 @@ class AudioMixer {
                 const partId = this.layerToPart.get(layerId);
                 if (partId) {
                     this.fadeLayer(layerId, 0, 0.8);
+                    // Track silent parts to stop them after a delay
+                    if (!this.silentParts) this.silentParts = new Map();
+                    if (!this.silentParts.has(partId)) {
+                        this.silentParts.set(partId, Date.now());
+                    }
                 } else {
                     this.fadeLayer(layerId, 0, 0.8);
                     setTimeout(() => this.stopLayer(layerId), 900);
                 }
+            }
+        });
+        
+        // Stop parts that have been silent for more than 10 seconds
+        if (this.silentParts) {
+            const now = Date.now();
+            for (const [partId, silentSince] of this.silentParts.entries()) {
+                if (now - silentSince > 10000) { // 10 seconds
+                    console.log(`Stopping silent part: ${partId}`);
+                    this.stopPart(partId);
+                    this.silentParts.delete(partId);
+                }
+            }
+        }
+        
+        // Clear silent tracking for parts that are now active
+        activeParts.forEach(partId => {
+            if (this.silentParts?.has(partId)) {
+                this.silentParts.delete(partId);
             }
         });
 
